@@ -1,0 +1,116 @@
+{
+	"name": "file-size-explorer",
+	"displayName": "Filesize Explorer",
+	"description": "View folders and files with size and the estimated gzip size",
+	"version": "0.1.0",
+	"publisher": "ixqbar@gmail.com",
+	"license": "FREE",
+	"icon": "resources/icon.png",
+	"author": {
+		"name": "星期八",
+		"email": "ixqbar@gmail.com"
+	},
+	"enableProposedApi": true,
+	"engines": {
+		"vscode": "^1.98.0"
+	},
+	"categories": [
+		"Visualization",
+		"Other"
+	],
+	"activationEvents": [
+		"onView:fileExplorer"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"views": {
+			"explorer": [
+				{
+					"id": "fileExplorer",
+					"name": "Filesize Explorer"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "fileExplorer.refreshFile",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/refresh-flat.png",
+					"dark": "resources/refresh-flat.png"
+				}
+			},
+			{
+				"command": "fileExplorer.refreshRoot",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/refresh-flat.png",
+					"dark": "resources/refresh-flat.png"
+				}
+			},
+			{
+				"command": "fileExplorer.openFolder",
+				"title": "View in Explorer",
+				"icon": {
+					"light": "resources/folder-open.png",
+					"dark": "resources/folder-open.png"
+				}
+			},
+			{
+				"command": "fileExplorer.openFile",
+				"title": "Open File"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "fileExplorer.refreshRoot",
+					"when": "view == fileExplorer",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "fileExplorer.refreshFile",
+					"when": "view == fileExplorer",
+					"group": "inline"
+				},
+				{
+					"command": "fileExplorer.openFolder",
+					"when": "view == fileExplorer",
+					"group": "inline"
+				}
+			]
+		}
+	},
+	"repository": {
+		"url": "https://github.com/ixqbar/vscode-fliesize-explorer.git",
+		"type": "git"
+	},
+	"scripts": {
+		"build": "tsc -p ./ && vsce package",
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint . --ext .ts,.tsx"
+	},
+	"devDependencies": {
+		"@types/mkdirp": "^0.5.2",
+		"@types/node": "^12.12.0",
+		"@types/rimraf": "^2.0.2",
+		"@types/vscode": "^1.45.0",
+		"@typescript-eslint/eslint-plugin": "^4.16.0",
+		"@typescript-eslint/parser": "^4.16.0",
+		"eslint": "^7.21.0",
+		"typescript": "^4.2.2"
+	},
+	"dependencies": {
+		"fast-folder-size": "^1.7.1",
+		"filesize": "^6.4.0",
+		"gzip-size": "^6.0.0",
+		"image-size": "^2.0.1",
+		"minimist": "^0.2.1",
+		"mkdirp": "^0.5.1",
+		"rimraf": "^2.6.2"
+	}
+}
