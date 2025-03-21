@@ -269,10 +269,14 @@ export class FileSystemProvider implements vscode.TreeDataProvider<Entry>, vscod
 
 			let sizeInfo = ''
 			if (element.uri.scheme === 'file') {
-				let isImage = ['.webp', '.png', '.jpg', '.jpeg'].some((v) => element.uri.fsPath.endsWith(v))
+				let isImage = ['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg'].some((v) => element.uri.fsPath.endsWith(v))
 				if (isImage) {
-					let imageSizeInfo = await imageSizeFromFile(element.uri.fsPath)
-					sizeInfo = `(${imageSizeInfo.width}x${imageSizeInfo.height})`
+					if (element.uri.fsPath.endsWith('.svg')) {
+						sizeInfo = this._readSVGSize(element.uri.fsPath)
+					} else {
+						let imageSizeInfo = await imageSizeFromFile(element.uri.fsPath)
+						sizeInfo = `(${imageSizeInfo.width}x${imageSizeInfo.height})`
+					}
 				}
 			}
 
@@ -288,6 +292,47 @@ export class FileSystemProvider implements vscode.TreeDataProvider<Entry>, vscod
 		}
 		//treeItem.tooltip = element.uri.fsPath;
 		return treeItem;
+	}
+
+	_readSVGSize(path:string):string {
+		try {
+			const svgContent = fs.readFileSync(path, 'utf-8')
+
+			// 正则表达式提取 width, height 和 viewBox
+			const widthRegex = /width=["']([^"']+)["']/i;
+			const heightRegex = /height=["']([^"']+)["']/i;
+			const viewBoxRegex = /viewBox=["']([^"']+)["']/i;
+
+			// 匹配属性
+			const widthMatch = svgContent.match(widthRegex);
+			const heightMatch = svgContent.match(heightRegex);
+			const viewBoxMatch = svgContent.match(viewBoxRegex);
+
+			// 提取值
+			let width = widthMatch ? widthMatch[1] : '';
+			let height = heightMatch ? heightMatch[1] : '';
+
+			// 如果没有 width 或 height，尝试从 viewBox 中提取
+			if ((width.length == 0 || height.length == 0) && viewBoxMatch) {
+				const viewBoxValues = viewBoxMatch[1].split(/\s+/); // 按空格分隔
+				if (viewBoxValues.length === 4) {
+					width = width || viewBoxValues[2]; // viewBox 的第 3 个值是宽度
+					height = height || viewBoxValues[3]; // 第 4 个值是高度
+				}
+			}
+
+			// 如果仍然没有值，设为 undefined 或默认值
+			width = width || '';
+			height = height || '';
+
+			if (width.length == 0 || height.length == 0) {
+				return ''
+			}
+
+			return `(${width}x${height})`
+		} catch (e) {
+			return ''
+		}
 	}
 
 	_getGzipSize(path: string): number {
